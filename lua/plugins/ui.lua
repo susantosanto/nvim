@@ -84,7 +84,44 @@ return {
     },
   },
 
-  {
+ {
+  "b0o/incline.nvim",
+  event = { "BufReadPost" },
+  opts = {
+    highlight = {
+      groups = {
+        InclineNormal = {
+          guibg = "CursorLine", -- Link background to theme's CursorLine
+          guifg = "fg",         -- Use theme's default foreground
+        },
+        InclineNormalNC = {
+          guibg = "NormalNC",   -- Link background to theme's non-current window
+          guifg = "Comment",    -- Use theme's comment color for inactive windows
+        },
+      },
+    },
+    hide = {
+      cursorline = true,      -- Hide cursorline in incline bar
+      focused_win = false,    -- Show incline in all windows
+      only_win = false,       -- Show incline even with multiple windows
+    },
+    window = {
+      margin = {
+        vertical = 0,
+        horizontal = 1,
+      },
+      zindex = 29,            -- Below zen-mode’s default (40)
+    },
+    render = function(props)
+      local filename = vim.fn.fnamemodify(vim.api.nvim_buf_get_name(props.buf), ":t")
+      return {
+        { filename, guifg = props.focused and "fg" or "Comment" },
+      }
+    end,
+  },
+},
+  
+{
     "b0o/incline.nvim",
     event = { "BufReadPost" },
     opts = {
@@ -113,77 +150,76 @@ return {
     },
   },
   -- Simplified Incline Statusline with Dynamic Icon Colors
-  {
-    "b0o/incline.nvim",
-    dependencies = { "craftzdog/solarized-osaka.nvim", "nvim-web-devicons" },
-    event = "BufReadPre",
-    priority = 1200,
-    config = function()
-      local colors = require("solarized-osaka.colors").setup({ variant = "dark" })
-      require("incline").setup({
-        highlight = {
-          groups = {
-            InclineNormal = { guifg = colors.cyan600, gui = "bold" }, -- Remove base02 background
-            InclineNormalNC = { guifg = colors.blue400, guibg = colors.base03, gui = "none" },
-            InclineSeparator = { guifg = colors.magenta600, guibg = colors.base03, gui = "bold" },
-          },
-        },
-        window = { margin = { vertical = 0, horizontal = 1 }, padding = 2, zindex = 60 },
-        hide = { cursorline = true, focused_win = false },
-        render = function(props)
-          local buf = props.buf
-          local bufname = vim.api.nvim_buf_get_name(buf)
-          local filename = vim.fn.fnamemodify(bufname, ":t")
-          if filename == "" then filename = "[No Name]" end
-          if vim.bo[buf].modified then filename = "● " .. filename end
-
-          local git_status = vim.b.gitsigns_status_dict or {}
-          local branch = git_status.head and ("   " .. git_status.head) or ""
-
-          local mode = ({ n = "NORMAL", i = "INSERT", v = "VISUAL", V = "V-LINE", ["\22"] = "V-BLOCK", c = "COMMAND", t = "TERMINAL" })[vim.fn.mode(1)] or "UNKNOWN"
-          local mode_color = { NORMAL = colors.green300, INSERT = colors.red600, VISUAL = colors.yellow700, COMMAND = colors.cyan700, TERMINAL = colors.magenta700 }
-
-          local mode_padding = 2
-          local item_padding = 2
-
-          local devicon, devcolor = require("nvim-web-devicons").get_icon_color_by_filetype(vim.bo[buf].filetype, { default = true })
-
-          -- Center mode text within its block
-          local mode_text = mode
-          local block_width = #mode_text + 2
-          local internal_padding = math.floor((block_width - #mode_text) / 2)
-
-          return {
-            { string.rep(" ", internal_padding) .. mode_text .. string.rep(" ", internal_padding), guibg = colors.green300, guifg = colors.base02, gui = "bold" }, -- Centered in block
-            { string.rep(" ", mode_padding), guibg = colors.base03, guifg = colors.base3 },
-            { devicon and (devicon .. " ") or "", guibg = colors.base03, guifg = devcolor }, -- Icon color based on file type
-            { filename, guibg = colors.base03, guifg = colors.base0, gui = vim.bo[buf].modified and "italic" or "none" },
-            { string.rep(" ", item_padding), guibg = colors.base03, guifg = colors.base3 },
-            { branch, guibg = colors.teal600, guifg = colors.base3, gui = "italic" },
-          }
-        end,
-      })
-    end,
-  },
-
-  -- statusline
-  {
-    "nvim-lualine/lualine.nvim",
-    opts = function(_, opts)
-      local LazyVim = require("lazyvim.util")
-      opts.sections.lualine_c[4] = {
-        LazyVim.lualine.pretty_path({
-          length = 0,
-          relative = "cwd",
-          modified_hl = "MatchParen",
-          directory_hl = "",
-          filename_hl = "Bold",
-          modified_sign = "",
-          readonly_icon = " 󰌾 ",
-        }),
+{
+  "b0o/incline.nvim",
+  event = { "BufReadPost" },
+  dependencies = { "nvim-tree/nvim-web-devicons" }, -- For file type icons
+  init = function()
+    -- Define highlight groups dynamically to link to theme's groups
+    vim.api.nvim_set_hl(0, "InclineNormal", { link = "CursorLine" })
+    vim.api.nvim_set_hl(0, "InclineNormalNC", { link = "NormalNC" })
+  end,
+  opts = {
+    highlight = {
+      groups = {
+        InclineNormal = "InclineNormal",   -- Link to custom highlight group
+        InclineNormalNC = "InclineNormalNC", -- Link to custom highlight group
+      },
+    },
+    hide = {
+      cursorline = true,      -- Hide cursorline in incline bar
+      focused_win = false,    -- Show incline in all windows
+      only_win = false,       -- Show incline even with multiple windows
+    },
+    window = {
+      margin = {
+        vertical = 0,
+        horizontal = 1,
+      },
+      zindex = 29,            -- Below zen-mode’s default (40)
+    },
+    render = function(props)
+      local filename = vim.fn.fnamemodify(vim.api.nvim_buf_get_name(props.buf), ":t")
+      local filetype = vim.bo[props.buf].filetype
+      local icon, icon_color = require("nvim-web-devicons").get_icon_color(filename, filetype, { default = true })
+      return {
+        { icon .. " ", guifg = icon_color }, -- Icon with nvim-web-devicons color
+        { filename, guifg = props.focused and vim.api.nvim_get_hl(0, { name = "Normal" }).fg or vim.api.nvim_get_hl(0, { name = "Comment" }).fg }, -- Dynamic fg
       }
     end,
   },
+},
+
+
+  -- statusline
+  {
+  "nvim-lualine/lualine.nvim",
+  event = "VeryLazy",
+  opts = function()
+    local lualine = require("lualine")
+    return {
+      options = {
+        theme = "auto",
+        globalstatus = true,
+        disabled_filetypes = { statusline = { "dashboard", "lazy", "alpha" } },
+      },
+      sections = {
+        lualine_a = { "mode" },
+        lualine_b = { "branch" },
+        lualine_c = {
+          {
+            "filename",
+            path = 3, -- Just the filename
+            symbols = { modified = "●", readonly = " 󰌾 " },
+          },
+        },
+        lualine_x = { "encoding", "fileformat", "filetype" },
+        lualine_y = { "progress" },
+        lualine_z = { "location" },
+      },
+    }
+  end,
+},
 
   {
     "folke/zen-mode.nvim",

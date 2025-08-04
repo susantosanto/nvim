@@ -57,8 +57,8 @@ return {
       })
 
       -- Keymaps untuk pemformatan manual
-      vim.keymap.set("n", "<leader>fm", "<cmd>Format<cr>", { desc = "Format file" })
-      vim.keymap.set("n", "<leader>fM", "<cmd>FormatWrite<cr>", { desc = "Format and save file" })
+      vim.keymap.set("n", "<leader>fmn", "<cmd>Format<cr>", { desc = "Format file" })
+      vim.keymap.set("n", "<leader>fMn", "<cmd>FormatWrite<cr>", { desc = "Format and save file" })
     end,
   },
 }
