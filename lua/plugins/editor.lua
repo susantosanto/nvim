@@ -234,6 +234,39 @@ return {
 		},
 	},
 
+	-- smart-splits
+  {
+    "mrjones2014/smart-splits.nvim",
+    lazy = false, -- Memastikan plugin dimuat saat startup
+    config = function()
+      require("smart-splits").setup({
+        ignored_filetypes = { "nofile", "quickfix", "prompt" },
+        ignored_buftypes = { "snack_explorer" }, -- Menghindari konflik dengan snack_explorer
+        tmux_integration = false, -- Nonaktifkan tmux karena Anda menggunakan Windows
+        default_amount = 5, -- Jumlah pixel untuk resize (opsional, sesuaikan jika perlu)
+      })
+
+	  
+	  
+   end,
+    keys = {
+      -- Keymap untuk navigasi window dengan Shift + h/j/k/l
+      { "<S-h>", function() require("smart-splits").move_cursor_left() end, desc = "Move to left window" },
+      { "<S-j>", function() require("smart-splits").move_cursor_down() end, desc = "Move to down window" },
+      { "<S-k>", function() require("smart-splits").move_cursor_up() end, desc = "Move to up window" },
+      { "<S-l>", function() require("smart-splits").move_cursor_right() end, desc = "Move to right window" },
+      -- Keymap untuk resize window dengan Ctrl + Alt + h/j/k/l
+      { "<C-h>", function() require("smart-splits").resize_left() end, desc = "Resize window left" },
+      { "<C-j>", function() require("smart-splits").resize_down() end, desc = "Resize window down" },
+      { "<C-k>", function() require("smart-splits").resize_up() end, desc = "Resize window up" },
+      { "<C-l>", function() require("smart-splits").resize_right() end, desc = "Resize window right" },
+      -- Keymap untuk membuka split
+      { "<leader>sv", ":vsplit<CR>", desc = "Open vertical split" },
+      { "<leader>sh", ":split<CR>", desc = "Open horizontal split" },
+      { "<leader>sV", ":leftabove vsplit<CR>", desc = "Open vertical split (left)" },
+      { "<leader>sH", ":aboveleft split<CR>", desc = "Open horizontal split (above)" },
+    },
+  },
 	{
 		"saghen/blink.cmp",
 		opts = {

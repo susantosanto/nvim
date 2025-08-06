@@ -44,7 +44,7 @@ return {
   'projekt0n/github-nvim-theme',
   name = 'github-theme',
   lazy = true, -- make sure we load this during startup if it is your main colorscheme
-  priority = 1000, -- make sure to load this before all the other start plugins
+--   priority = 1000, -- make sure to load this before all the other start plugins
   config = function()
     require('github-theme').setup({
       -- ...
@@ -56,13 +56,23 @@ return {
 {
 	"2nthony/vitesse.nvim",
 	lazy = true,
-	priority = 1000,
+	-- priority = 1000,
 	dependencies = {
       "tjdevries/colorbuddy.nvim"
     },
 	opts = function()
 		return {
 			transparent_background = true,
+		}
+	end,
+},
+{
+	"navarasu/onedark.nvim",
+	lazy = false,
+	priority = 1000,
+	opts = function()
+		return {
+			transparent = true,
 		}
 	end,
 },
@@ -85,6 +95,8 @@ return {
 
   {
      "folke/tokyonight.nvim",
+	 lazy = true,
+	 priority = 1000,
     opts = {
       transparent = true,
       styles = {

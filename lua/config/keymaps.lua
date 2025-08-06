@@ -143,3 +143,4 @@ vim.keymap.set("n", "<leader>lcu", "<cmd>Leet cookie update<CR>", vim.tbl_extend
 vim.keymap.set("n", "<leader>lclj", "<cmd>Leet lang javascript<CR>", vim.tbl_extend("force", opts, { desc = "Set Language to JavaScript" }))
 vim.keymap.set("n", "<leader>lclt", "<cmd>Leet lang typescript<CR>", vim.tbl_extend("force", opts, { desc = "Set Language to TypeScript" }))
 vim.keymap.set("n", "<leader>lclp", "<cmd>Leet lang php<CR>", vim.tbl_extend("force", opts, { desc = "Set Language to PHP" }))
+

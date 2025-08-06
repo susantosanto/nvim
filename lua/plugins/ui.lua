@@ -70,10 +70,9 @@ return {
   -- buffer line
   {
     "akinsho/bufferline.nvim",
+    enabled = false,
     event = "VeryLazy",
     keys = {
-      { "<Tab>", "<Cmd>BufferLineCycleNext<CR>", desc = "Next tab" },
-      { "<S-Tab>", "<Cmd>BufferLineCyclePrev<CR>", desc = "Prev tab" },
     },
     opts = {
       options = {
@@ -84,142 +83,95 @@ return {
     },
   },
 
- {
-  "b0o/incline.nvim",
-  event = { "BufReadPost" },
-  opts = {
-    highlight = {
-      groups = {
-        InclineNormal = {
-          guibg = "CursorLine", -- Link background to theme's CursorLine
-          guifg = "fg",         -- Use theme's default foreground
-        },
-        InclineNormalNC = {
-          guibg = "NormalNC",   -- Link background to theme's non-current window
-          guifg = "Comment",    -- Use theme's comment color for inactive windows
-        },
-      },
-    },
-    hide = {
-      cursorline = true,      -- Hide cursorline in incline bar
-      focused_win = false,    -- Show incline in all windows
-      only_win = false,       -- Show incline even with multiple windows
-    },
-    window = {
-      margin = {
-        vertical = 0,
-        horizontal = 1,
-      },
-      zindex = 29,            -- Below zen-mode’s default (40)
-    },
-    render = function(props)
-      local filename = vim.fn.fnamemodify(vim.api.nvim_buf_get_name(props.buf), ":t")
-      return {
-        { filename, guifg = props.focused and "fg" or "Comment" },
-      }
-    end,
-  },
-},
-  
-{
+  -- incline.nvim dengan transparansi dan separator modern
+  {
     "b0o/incline.nvim",
-    event = { "BufReadPost" },
+    event = { "BufReadPost", "BufNewFile" },
+    dependencies = { "nvim-tree/nvim-web-devicons" },
+    init = function()
+      -- Definisikan highlight groups untuk transparansi
+      vim.api.nvim_set_hl(0, "InclineNormal", { bg = "NONE", fg = vim.api.nvim_get_hl(0, { name = "Normal" }).fg })
+      vim.api.nvim_set_hl(0, "InclineNormalNC", { bg = "NONE", fg = vim.api.nvim_get_hl(0, { name = "Comment" }).fg })
+    end,
     opts = {
       highlight = {
         groups = {
-          InclineNormal = {
-            default = true,
-            group = "CursorLine",
-          },
-          InclineNormalNC = {
-            default = true,
-            group = "TermCursorNC",
-          },
+          InclineNormal = "InclineNormal",
+          InclineNormalNC = "InclineNormalNC",
         },
       },
       hide = {
         cursorline = true,
+        focused_win = false,
+        only_win = false,
       },
       window = {
         margin = {
           vertical = 0,
           horizontal = 1,
         },
-        zindex = 29, -- less than zen mode defualt, 40, 40 - 10
+        zindex = 29, -- Di bawah zen-mode
       },
+      render = function(props)
+        local bufname = vim.api.nvim_buf_get_name(props.buf)
+        if bufname == "" then
+          return { "[No Name]" }
+        end
+        local filename = vim.fn.fnamemodify(bufname, ":t")
+        local filetype = vim.bo[props.buf].filetype
+        local icon, icon_color = require("nvim-web-devicons").get_icon_color(filename, filetype, { default = true })
+        -- Simulasikan breadcrumbs sederhana dengan path relatif
+        local relative_path = vim.fn.fnamemodify(bufname, ":.:h")
+        local path_parts = vim.split(relative_path, "/", { plain = true })
+        local breadcrumbs = {}
+        if relative_path ~= "." then
+          for i, part in ipairs(path_parts) do
+            if part ~= "" then
+              table.insert(breadcrumbs, { part, guifg = props.focused and icon_color or "Comment" })
+              table.insert(breadcrumbs, { " ➤ ", guifg = props.focused and icon_color or "Comment" })
+            end
+          end
+        end
+        table.insert(breadcrumbs, { icon .. " ", guifg = icon_color })
+        table.insert(breadcrumbs, { filename, guifg = props.focused and vim.api.nvim_get_hl(0, { name = "Normal" }).fg or vim.api.nvim_get_hl(0, { name = "Comment" }).fg })
+        return breadcrumbs
+      end,
     },
   },
-  -- Simplified Incline Statusline with Dynamic Icon Colors
-{
-  "b0o/incline.nvim",
-  event = { "BufReadPost" },
-  dependencies = { "nvim-tree/nvim-web-devicons" }, -- For file type icons
-  init = function()
-    -- Define highlight groups dynamically to link to theme's groups
-    vim.api.nvim_set_hl(0, "InclineNormal", { link = "CursorLine" })
-    vim.api.nvim_set_hl(0, "InclineNormalNC", { link = "NormalNC" })
-  end,
-  opts = {
-    highlight = {
-      groups = {
-        InclineNormal = "InclineNormal",   -- Link to custom highlight group
-        InclineNormalNC = "InclineNormalNC", -- Link to custom highlight group
-      },
-    },
-    hide = {
-      cursorline = true,      -- Hide cursorline in incline bar
-      focused_win = false,    -- Show incline in all windows
-      only_win = false,       -- Show incline even with multiple windows
-    },
-    window = {
-      margin = {
-        vertical = 0,
-        horizontal = 1,
-      },
-      zindex = 29,            -- Below zen-mode’s default (40)
-    },
-    render = function(props)
-      local filename = vim.fn.fnamemodify(vim.api.nvim_buf_get_name(props.buf), ":t")
-      local filetype = vim.bo[props.buf].filetype
-      local icon, icon_color = require("nvim-web-devicons").get_icon_color(filename, filetype, { default = true })
-      return {
-        { icon .. " ", guifg = icon_color }, -- Icon with nvim-web-devicons color
-        { filename, guifg = props.focused and vim.api.nvim_get_hl(0, { name = "Normal" }).fg or vim.api.nvim_get_hl(0, { name = "Comment" }).fg }, -- Dynamic fg
-      }
-    end,
-  },
-},
-
 
   -- statusline
   {
-  "nvim-lualine/lualine.nvim",
-  event = "VeryLazy",
-  opts = function()
-    local lualine = require("lualine")
-    return {
-      options = {
-        theme = "auto",
-        globalstatus = true,
-        disabled_filetypes = { statusline = { "dashboard", "lazy", "alpha" } },
-      },
-      sections = {
-        lualine_a = { "mode" },
-        lualine_b = { "branch" },
-        lualine_c = {
-          {
-            "filename",
-            path = 3, -- Just the filename
-            symbols = { modified = "●", readonly = " 󰌾 " },
-          },
+    "nvim-lualine/lualine.nvim",
+    event = "VeryLazy",
+    opts = function()
+      local lualine = require("lualine")
+      return {
+        options = {
+          theme = "auto",
+          globalstatus = true,
+          disabled_filetypes = { statusline = { "dashboard", "lazy", "alpha", "neo-tree", "NvimTree", "trouble" } },
         },
-        lualine_x = { "encoding", "fileformat", "filetype" },
-        lualine_y = { "progress" },
-        lualine_z = { "location" },
-      },
-    }
-  end,
-},
+        sections = {
+          lualine_a = {
+            function()
+              return " " .. require("lualine.components.mode")()
+            end,
+          },
+          lualine_b = { "branch" },
+          lualine_c = {
+            {
+              "filename",
+              path = 3,
+              symbols = { modified = "●", readonly = " 󰌾 " },
+            },
+          },
+          lualine_x = { "encoding", "fileformat", "filetype" },
+          lualine_y = { "progress" },
+          lualine_z = { "location" },
+        },
+      }
+    end,
+  },
 
   {
     "folke/zen-mode.nvim",

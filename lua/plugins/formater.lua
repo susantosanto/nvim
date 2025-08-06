@@ -1,6 +1,3 @@
--- File: ~/.config/nvim/lua/plugins/formatter.lua
--- Plugin untuk pemformatan otomatis file JavaScript, JSX, TypeScript, TSX, PHP, Laravel Blade, HTML, dan CSS
-
 return {
   {
     "mhartington/formatter.nvim",
@@ -29,7 +26,6 @@ return {
           },
           php = {
             function()
-              -- Gunakan PHP CS Fixer atau Pint untuk PHP
               return {
                 exe = "php-cs-fixer", -- Ganti dengan "pint" jika menggunakan Pint
                 args = {
@@ -43,10 +39,10 @@ return {
           },
           ["blade.php"] = {
             function()
-              -- Laravel Blade menggunakan Pint (atau PHP CS Fixer)
               return {
-                exe = "php-cs-fixer", -- Alternatif: php-cs-fixer
+                exe = "php-cs-fixer", -- Ganti dengan "pint" jika menggunakan Pint
                 args = {
+                  "fix",
                   util.escape_path(util.get_current_buffer_file_path()),
                 },
                 stdin = false,
@@ -56,9 +52,25 @@ return {
         },
       })
 
+      -- Nonaktifkan format otomatis LazyVim (conform.nvim)
+      vim.g.lazyvim_format_on_save = false
+
       -- Keymaps untuk pemformatan manual
       vim.keymap.set("n", "<leader>fmn", "<cmd>Format<cr>", { desc = "Format file" })
       vim.keymap.set("n", "<leader>fMn", "<cmd>FormatWrite<cr>", { desc = "Format and save file" })
+
+      -- Format otomatis saat menyimpan
+      vim.api.nvim_create_autocmd("BufWritePost", {
+        group = vim.api.nvim_create_augroup("FormatAutogroup", { clear = true }),
+        callback = function()
+          vim.cmd("FormatWrite")
+        end,
+      })
     end,
+  },
+  -- Nonaktifkan conform.nvim untuk menghindari konflik
+  {
+    "stevearc/conform.nvim",
+    enabled = false,
   },
 }
