@@ -7,9 +7,11 @@ return {
       "hrsh7th/cmp-path",
       "hrsh7th/cmp-cmdline",
       "L3MON4D3/LuaSnip",
-      "adoolaard/nvim-cmp-laravel", ft = { "blade", "php" },
+      "adoolaard/nvim-cmp-laravel",
+      "saadparwaiz1/cmp_luasnip",
     },
-    config = function(_, opts)
+    event = "InsertEnter",
+    config = function()
       local cmp = require("cmp")
       cmp.setup({
         snippet = {
@@ -25,6 +27,7 @@ return {
           ["<CR>"] = cmp.mapping.confirm({ select = true }),
         }),
         sources = cmp.config.sources({
+          { name = "codeium" }, -- Tambahkan neocodeium sebagai sumber
           { name = "nvim_lsp" },
           { name = "luasnip" },
           { name = "buffer" },

@@ -14,8 +14,9 @@ return {
         "css-lsp",
         "emmet-ls",
         "intelephense",
-        "prettier", -- Tambahkan prettier
-        "php-cs-fixer", -- Sudah ada, tetapi pastikan
+        "prettier",
+        "php-cs-fixer",
+        "eslint_d", -- Use eslint_d instead of eslint
       })
     end,
   },
@@ -68,6 +69,27 @@ return {
               },
             },
           },
+        },
+        eslint = {
+          filetypes = { "javascript", "javascriptreact", "typescript", "typescriptreact" },
+          settings = {
+            workingDirectory = { mode = "auto" },
+            codeActionOnSave = {
+              enable = true,
+              mode = "all",
+            },
+            rulesCustomizations = {
+              { rule = "no-undef", severity = "error" }, -- Detect undefined variables like conole.log
+            },
+            format = false, -- Let prettier handle formatting
+            -- Ensure eslint works without a local .eslintrc
+            useESLintGlobal = true,
+            nodePath = "", -- Use global node_modules
+          },
+          on_attach = function(client, bufnr)
+            -- Ensure eslint diagnostics are published
+            vim.api.nvim_buf_set_option(bufnr, "omnifunc", "v:lua.vim.lsp.omnifunc")
+          end,
         },
         html = {},
         emmet_ls = {
@@ -172,19 +194,19 @@ return {
           require("lspconfig")[server_name].setup(opts.servers[server_name] or {})
         end,
       })
-      -- Nonaktifkan diagnostik default untuk tiny-inline-diagnostic
+      -- Configure diagnostics for tiny-inline-diagnostic
       vim.diagnostic.config({
         virtual_text = false,
         signs = false,
         underline = true,
-        update_in_insert = false,
+        update_in_insert = true, -- Update diagnostics while typing
         severity_sort = true,
       })
       vim.lsp.handlers["textDocument/publishDiagnostics"] = vim.lsp.with(
         vim.lsp.diagnostic.on_publish_diagnostics,
         { virtual_text = false }
       )
-      -- Keymaps untuk LSP
+      -- Keymaps for LSP
       vim.api.nvim_create_autocmd("LspAttach", {
         group = vim.api.nvim_create_augroup("UserLspConfig", {}),
         callback = function(ev)
