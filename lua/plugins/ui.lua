@@ -139,6 +139,8 @@ return {
     },
   },
 
+  
+
   -- statusline
   {
     "nvim-lualine/lualine.nvim",
@@ -150,6 +152,10 @@ return {
           theme = "auto",
           globalstatus = true,
           disabled_filetypes = { statusline = { "dashboard", "lazy", "alpha", "neo-tree", "NvimTree", "trouble" } },
+
+          -- Jika ingin Kotak bentuk nya
+          --component_separators = { left = "│", right = "│" },
+  -- section_separators = { left = "", right = "" }, -- Opsional: kosongkan pemisah antar section jika tidak diinginkan
         },
         sections = {
           lualine_a = {
@@ -165,9 +171,11 @@ return {
               symbols = { modified = "●", readonly = " 󰌾 " },
             },
           },
-          lualine_x = { "encoding", "fileformat", "filetype" },
-          lualine_y = { "progress" },
-          lualine_z = { "location" },
+          lualine_x = { "encoding","filetype", "progress" },
+          lualine_y = { "location"},
+          lualine_z = {function()
+    return "🕒 " .. os.date("%H:%M")
+  end, },
         },
       }
     end,

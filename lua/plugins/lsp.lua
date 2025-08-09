@@ -16,7 +16,7 @@ return {
         "intelephense",
         "prettier",
         "php-cs-fixer",
-        "eslint_d", -- Use eslint_d instead of eslint
+        "eslint_d",
       })
     end,
   },
@@ -27,7 +27,6 @@ return {
     dependencies = {
       { "williamboman/mason.nvim" },
       { "williamboman/mason-lspconfig.nvim" },
-      { "rachartier/tiny-inline-diagnostic.nvim" },
     },
     opts = {
       inlay_hints = { enabled = false },
@@ -79,15 +78,13 @@ return {
               mode = "all",
             },
             rulesCustomizations = {
-              { rule = "no-undef", severity = "error" }, -- Detect undefined variables like conole.log
+              { rule = "no-undef", severity = "error" },
             },
-            format = false, -- Let prettier handle formatting
-            -- Ensure eslint works without a local .eslintrc
+            format = false,
             useESLintGlobal = true,
-            nodePath = "", -- Use global node_modules
+            nodePath = "",
           },
           on_attach = function(client, bufnr)
-            -- Ensure eslint diagnostics are published
             vim.api.nvim_buf_set_option(bufnr, "omnifunc", "v:lua.vim.lsp.omnifunc")
           end,
         },
@@ -186,7 +183,7 @@ return {
     config = function(_, opts)
       local mason_lspconfig = require("mason-lspconfig")
       mason_lspconfig.setup({
-        ensure_installed = {}, -- Handled by mason.nvim
+        ensure_installed = {},
         automatic_installation = true,
       })
       mason_lspconfig.setup_handlers({
@@ -194,19 +191,31 @@ return {
           require("lspconfig")[server_name].setup(opts.servers[server_name] or {})
         end,
       })
-      -- Configure diagnostics for tiny-inline-diagnostic
+
+      -- Konfigurasi diagnostik bawaan Neovim untuk menampilkan virtual text dengan tanda hijau untuk hint
       vim.diagnostic.config({
-        virtual_text = false,
-        signs = false,
-        underline = true,
-        update_in_insert = true, -- Update diagnostics while typing
+        virtual_text = {
+          severity = { min = vim.diagnostic.severity.HINT }, -- Tampilkan semua level, termasuk hint
+          prefix = function(diag)
+            return diag.severity == vim.diagnostic.severity.ERROR and "● " or
+                   diag.severity == vim.diagnostic.severity.WARN and "⚠ " or
+                   diag.severity == vim.diagnostic.severity.HINT and "✓ " or
+                   "ℹ " -- Hint ditandai dengan ✓ hijau
+          end,
+          spacing = 4,
+        },
+        signs = true,
+        update_in_insert = true, -- Perbarui diagnostik saat mengetik
         severity_sort = true,
       })
-      vim.lsp.handlers["textDocument/publishDiagnostics"] = vim.lsp.with(
-        vim.lsp.diagnostic.on_publish_diagnostics,
-        { virtual_text = false }
-      )
-      -- Keymaps for LSP
+
+      -- Definisikan highlight untuk tanda dengan background transparan
+      vim.api.nvim_set_hl(0, "DiagnosticVirtualTextHint", { fg = "#00ff00", bg = "NONE" }) -- Hijau untuk hint
+      vim.api.nvim_set_hl(0, "DiagnosticVirtualTextError", { fg = "#ff0000", bg = "NONE" }) -- Merah untuk error
+      vim.api.nvim_set_hl(0, "DiagnosticVirtualTextWarn", { fg = "#ffaa00", bg = "NONE" }) -- Kuning untuk warning
+      vim.api.nvim_set_hl(0, "DiagnosticVirtualTextInfo", { fg = "#00aaff", bg = "NONE" }) -- Biru untuk info
+
+      -- Keymaps untuk LSP
       vim.api.nvim_create_autocmd("LspAttach", {
         group = vim.api.nvim_create_augroup("UserLspConfig", {}),
         callback = function(ev)
@@ -218,6 +227,26 @@ return {
           vim.keymap.set("n", "<leader>ca", vim.lsp.buf.code_action, buf_opts)
           vim.keymap.set("n", "<leader>rn", vim.lsp.buf.rename, buf_opts)
         end,
+      })
+
+      -- Aktifkan diagnostik secara eksplisit untuk buffer saat ini
+      vim.api.nvim_create_autocmd("LspAttach", {
+        group = vim.api.nvim_create_augroup("EnableDiagnostics", {}),
+        callback = function(ev)
+          vim.diagnostic.enable(true, { bufnr = ev.buf })
+        end,
+      })
+    end,
+  },
+  -- dotenv.nvim
+  {
+    "ellisonleao/dotenv.nvim",
+    event = { "BufReadPre", "BufNewFile" }, -- Load on same events as lspconfig
+    config = function()
+      require("dotenv").setup({
+        enable_on_load = true, -- Automatically load .env file when opening a buffer
+        verbose = false, -- Disable notifications for .env file loading
+        file_name = ".env", -- Use default .env file name
       })
     end,
   },

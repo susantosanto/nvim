@@ -144,3 +144,5 @@ vim.keymap.set("n", "<leader>lclj", "<cmd>Leet lang javascript<CR>", vim.tbl_ext
 vim.keymap.set("n", "<leader>lclt", "<cmd>Leet lang typescript<CR>", vim.tbl_extend("force", opts, { desc = "Set Language to TypeScript" }))
 vim.keymap.set("n", "<leader>lclp", "<cmd>Leet lang php<CR>", vim.tbl_extend("force", opts, { desc = "Set Language to PHP" }))
 
+vim.api.nvim_set_keymap('n', 'S-c', 's/^/-- /<CR>', { noremap = true })  -- Untuk komentar
+vim.api.nvim_set_keymap('n', 'S-u', 's/^-- //<CR>', { noremap = true })  -- Untuk menghapus komentar
