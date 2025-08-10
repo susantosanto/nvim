@@ -46,8 +46,34 @@ return {
           },
         },
       },
-      picker = { enabled = true, sources = { explorer = { layout = { preset = "sidebar", preview = false } } } },
-      notifier = { enabled = true, timeout = 3000 },
+      picker = {
+        enabled = true,
+        sources = {
+          explorer = {
+            layout = { preset = "sidebar", preview = false },
+          },
+        },
+      },
+      notifier = {
+        enabled = true,
+        timeout = 2500, -- Slightly faster timeout for a snappier feel
+        style = "modern", -- Professional and modern notification style
+      },
+      -- Enhanced visual styling for a polished look
+      ui = {
+        border = "rounded", -- Modern rounded borders
+        icons = {
+          folder = " ",
+          file = " ",
+          git = " ",
+          diagnostic = " ",
+        },
+        highlights = {
+          SnacksExplorerBorder = { fg = "#3b4261" }, -- Subtle, professional border color
+          SnacksExplorerActive = { bg = "#2e3440", fg = "#eceff4" }, -- Modern Nordic theme
+          SnacksPickerHeader = { fg = "#88c0d0", bold = true }, -- Clean, vibrant headers
+        },
+      },
     },
     keys = {
       { "<leader><space>", function() require("snacks.picker").smart() end, desc = "Smart Find Files" },
