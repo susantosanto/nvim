@@ -123,26 +123,14 @@ map("n", "<leader>cf", "<cmd>Legendary functions<cr>", { desc = "Cari Functions"
 map("n", "<leader>ca", "<cmd>Legendary autocmds<cr>", { desc = "Cari Autocmds" })
 
 -- Insert mode: Ctrl + l untuk keluar dari kurung dan lanjut insert
-vim.keymap.set("i", "<A-l>", "<Esc>la", { desc = "Keluar dari kurung dan masuk insert" })
+-- vim.keymap.set("i", "<A-l>", "<Esc>la", { desc = "Keluar dari kurung dan masuk insert" })
+vim.keymap.set("i", "<C-l>", "<Esc>la", { desc = "Keluar dari kurung dan masuk insert" })
 vim.keymap.set("n", "<leader>wc", "<C-w>c", { desc = "Close current window" })
 
 -- Keymaps untuk mencari file
 map("n", "<leader>ff", function()
   require("snacks.picker").files() -- Cari file
 end, vim.tbl_extend("force", opts, { desc = "Cari File" }))
-
-local opts = { noremap = true, silent = true }
-vim.keymap.set("n", "<leader>lcd", "<cmd>Leet desc toggle<CR>", vim.tbl_extend("force", opts, { desc = "Toggle LeetCode Problem Description" }))
-vim.keymap.set("n", "<leader>lce", "<cmd>Leet exit<CR>", vim.tbl_extend("force", opts, { desc = "Exit LeetCode Environment" }))
-vim.keymap.set("n", "<leader>lcl", "<cmd>Leet list<CR>", vim.tbl_extend("force", opts, { desc = "List LeetCode Problems" }))
-vim.keymap.set("n", "<leader>lco", "<cmd>Leet<CR>", vim.tbl_extend("force", opts, { desc = "Open LeetCode Dashboard" }))
-vim.keymap.set("n", "<leader>lcr", "<cmd>Leet random<CR>", vim.tbl_extend("force", opts, { desc = "Select Random Problem" }))
-vim.keymap.set("n", "<leader>lcs", "<cmd>Leet submit<CR>", vim.tbl_extend("force", opts, { desc = "Submit LeetCode Solution" }))
-vim.keymap.set("n", "<leader>lct", "<cmd>Leet test<CR>", vim.tbl_extend("force", opts, { desc = "Run LeetCode Test Cases" }))
-vim.keymap.set("n", "<leader>lcu", "<cmd>Leet cookie update<CR>", vim.tbl_extend("force", opts, { desc = "Update LeetCode Cookie" }))
-vim.keymap.set("n", "<leader>lclj", "<cmd>Leet lang javascript<CR>", vim.tbl_extend("force", opts, { desc = "Set Language to JavaScript" }))
-vim.keymap.set("n", "<leader>lclt", "<cmd>Leet lang typescript<CR>", vim.tbl_extend("force", opts, { desc = "Set Language to TypeScript" }))
-vim.keymap.set("n", "<leader>lclp", "<cmd>Leet lang php<CR>", vim.tbl_extend("force", opts, { desc = "Set Language to PHP" }))
 
 vim.api.nvim_set_keymap('n', 'S-c', 's/^/-- /<CR>', { noremap = true })  -- Untuk komentar
 vim.api.nvim_set_keymap('n', 'S-u', 's/^-- //<CR>', { noremap = true })  -- Untuk menghapus komentar
